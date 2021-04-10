@@ -10,6 +10,7 @@
     "@testing-library/react": "^11.2.6",
     "@testing-library/user-event": "^12.8.3",
     "array-shuffle": "^2.0.0",
+    "axios": "^0.21.1",
     "bootstrap": "^4.6.0",
     "currency-formatter": "^1.5.7",
     "dotenv": "^8.2.0",

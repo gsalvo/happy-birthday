@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { Container, Row, Col, Card, CardColumns } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, CardColumns, Modal, Button } from 'react-bootstrap';
 import config from './config.js';
 import ReactCardFlip from 'react-card-flip';
 import arrayShuffle from 'array-shuffle';
 import currencyFormatter from 'currency-formatter';
-import {library} from '@fortawesome/fontawesome-svg-core';
+import { library } from '@fortawesome/fontawesome-svg-core';
 import * as Icons from '@fortawesome/free-solid-svg-icons';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import axios from 'axios';
 import './App.css';
 
 const iconList = Object.keys(Icons)
@@ -19,7 +20,7 @@ const quantityCards = config.totalCards;
 const generateCards = (quantity) => {
   const result = config.gifts.map(element => {
     return {
-      value: element,
+      value: parseInt(element),
       isGift: true,
     }
   });
@@ -32,78 +33,149 @@ const generateCards = (quantity) => {
   }
   return arrayShuffle(result);
 };
-const cards = generateCards(quantityCards); 
+const cards = generateCards(quantityCards);
 
-
+function MyVerticallyCenteredModal(props) {
+  return (
+    <Modal
+      size="lg"
+      aria-labelledby="contained-modal-title-vcenter"
+      centered
+      show={props.show}
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          {props.header}
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>
+          {props.content}
+        </p>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button onClick={props.onHide}>Salir</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
 
 function App() {
-  
-  const [oportunities, setOportunities] = useState(config.oportunities);
+  const [modalShow, setModalShow] = useState(false);
+  const [oportunities, setOportunities] = useState(config.oportunities + 1);
+  const [gift, setGift] = useState(0);
   const [isFlipped, setIsFlipped] = useState(Array(10).fill(false, 0, 10));
-  const [email, setEmail] = useState('');    
-  
-  
+  const [modalHeaderText, setModalHeaderText] = useState('');
+  const [modalBodyText, setModalBodyText] = useState('');
 
-  const flipCard = (index) => {
+  useEffect(() => {
+    const oportunitiesAux = oportunities;
+    setOportunities(oportunitiesAux - 1);
+  }, [isFlipped]);
+
+  useEffect(() => {
+    console.log(oportunities);
+    if (oportunities === 0) {
+      if (gift !== 0) {
+        setModalHeaderText('Felicidades');
+        setModalBodyText('Felicidades');
+      } else {
+        setModalHeaderText('Ooops :(');
+        setModalBodyText(`Lo Siento ${config.name}, espero que el próximo año tengas mejor suerte`);
+      }
+    }
+  }, [oportunities, gift]);
+
+  useEffect(() => {
+    if (oportunities === 0) {
+      setModalShow(true);
+      console.log(config.request);
+      axios.post(config.request, {
+        gift: gift,
+      })
+      .then(function (response) {
+        console.log('Gift received');
+      })
+      .catch(function (error) {
+        alert('ha ocurrido un error');
+      });
+    }
+  }, [modalHeaderText, modalBodyText]);
+
+
+
+  const flipCard = (index, value, isGift) => {
     const isFlippedAux = isFlipped.slice(0);
     isFlippedAux[index] = !isFlippedAux[index];
     setIsFlipped(isFlippedAux);
-    const oportunitiesAux = oportunities;
-    setOportunities(oportunitiesAux - 1);
+    if (isGift) {
+      setGift(gift + value);
+    }
   }
 
   return (
-    <Container>
-      <Row>
-        <Col className="text-center">
-          <h1> Feliz Cumpleaños <b>{config.name}</b></h1>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <p>Oportunidades: {oportunities}</p>
-        </Col>
-      </Row>
-      <Row>
-        <Col>
+    <>
+      <MyVerticallyCenteredModal
+        show={modalShow}
+        onHide={() => setModalShow(false)}
+        header={modalHeaderText}
+        content={modalBodyText}
+      />
 
-        </Col>
-      </Row>
-      <Row>
-        <CardColumns>
-          {cards.map(function (card, index) {            
-            return <Card>
-              <Card.Body>
-                <ReactCardFlip isFlipped={!isFlipped[index]} flipDirection="vertical">
-                  <div className={'front-card text-center align-middle'}>
-                  {card.isGift &&
-                    <h2>
-                      {currencyFormatter.format(card.value, { 
-                        symbol: '$', 
-                        decimalDigits: 0,
-                        thousand: '.',
-                        precision: 0,
-                      })}
-                    </h2>
-                  }
-                  {!card.isGift &&
-                    <h2>
-                      <FontAwesomeIcon icon={card.value} />                      
-                    </h2>
-                  }          
-                  </div>
-                  <div className={'back-card'}>
-                    
-          <button onClick={() => flipCard(index)}>Click to flip</button>
-                  </div>
-                </ReactCardFlip>
-              </Card.Body>
-            </Card>
-          })}
+      <Container>
+        <Row>
+          <Col className="text-center">
+            <h1> Feliz Cumpleaños <b>{config.name}</b></h1>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <p>Oportunidades: {oportunities}</p>
+            <p>Regalo obtenido:{currencyFormatter.format(gift, { code: 'CLP', precision: 0, })}</p>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
 
-        </CardColumns>
-      </Row>
-    </Container>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <CardColumns>
+              {cards.map(function (card, index) {
+                return <Card key={index}>
+                  <Card.Body>
+                    <ReactCardFlip isFlipped={!isFlipped[index]} flipDirection="vertical">
+                      <div className={'front-card text-center d-flex justify-content-center align-content-center flex-wrap border'}>
+
+                        {card.isGift &&
+                          <h2>
+                            {currencyFormatter.format(card.value, { code: 'CLP', precision: 0, })}
+                          </h2>
+                        }
+                        {!card.isGift &&
+                          <h2>
+                            <FontAwesomeIcon icon={card.value} />
+                          </h2>
+                        }
+                      </div>
+                      <div className={'back-card text-center d-flex justify-content-center align-content-center flex-wrap border'}>
+                        {oportunities > 0 &&
+                          < button onClick={() => flipCard(index, card.value, card.isGift)}>
+                          </button>
+                        }
+                      </div>
+
+                    </ReactCardFlip>
+                  </Card.Body>
+                </Card>
+              })}
+
+            </CardColumns>
+          </Col>
+        </Row>
+      </Container >
+    </>
   );
 }
 

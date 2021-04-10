@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Happy+Monkey&display=swap');
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+body {
+  margin: 0;
+  font-family:'Happy Monkey';
+  font-size: bold;
+  background: url("./img/background.png") repeat-x top center fixed;  
+  background-color: rgb(221, 75, 75);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+  color: white;
+  text-align: center;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.card {
+  border: none;
+  background-color: transparent;
+}
+
+.card-body {
+  border: none;
+  padding: 0px;
+}
+
+.back-card,
+.front-card {
+  height: 300px;
+  width: 100%;
+  padding: 15px;
+}
+
+.back-card {
+  background: green;
+}
+
+.front-card {
+  background: green;
+}

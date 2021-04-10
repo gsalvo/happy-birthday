@@ -5,7 +5,6 @@ const totalCards = parseInt(process.env.REACT_APP_TOTAL_CARDS) || 15;
 const gifts = process.env.REACT_APP_GIFT ? process.env.REACT_APP_GIFT.split(',') : [];
 const name = process.env.REACT_APP_NAME;
 const request = process.env.REACT_APP_REQUEST;
-console.log(request);
 const penalty = [
     'poo',
     'sad-tear',
@@ -17,9 +16,9 @@ const penalty = [
     'poo',
     'poo',
     'poo',
-]
+];
 
-export default {
+export default{
     oportunities,
     name,
     gifts,

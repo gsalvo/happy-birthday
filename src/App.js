@@ -43,14 +43,14 @@ function MyVerticallyCenteredModal(props) {
       centered
       show={props.show}
     >
-      <Modal.Header closeButton>
+      <Modal.Header>
         <Modal.Title id="contained-modal-title-vcenter">
           {props.header}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <p>
-          {props.content}
+          <b>{props.content}</b>
         </p>
       </Modal.Body>
       <Modal.Footer>
@@ -74,11 +74,10 @@ function App() {
   }, [isFlipped]);
 
   useEffect(() => {
-    console.log(oportunities);
     if (oportunities === 0) {
       if (gift !== 0) {
         setModalHeaderText('Felicidades');
-        setModalBodyText('Felicidades');
+        setModalBodyText(`Felicidades ${config.name} has obtenido un total de ${currencyFormatter.format(gift, { code: 'CLP', precision: 0, })}`);
       } else {
         setModalHeaderText('Ooops :(');
         setModalBodyText(`Lo Siento ${config.name}, espero que el próximo año tengas mejor suerte`);
@@ -88,17 +87,17 @@ function App() {
 
   useEffect(() => {
     if (oportunities === 0) {
-      setModalShow(true);
-      console.log(config.request);
+      setTimeout(function () { setModalShow(true); }, 1500);
+
       axios.post(config.request, {
         gift: gift,
       })
-      .then(function (response) {
-        console.log('Gift received');
-      })
-      .catch(function (error) {
-        alert('ha ocurrido un error');
-      });
+        .then(function () {
+          console.log('Gift received');
+        })
+        .catch(function (error) {
+          alert('ha ocurrido un error', error);
+        });
     }
   }, [modalHeaderText, modalBodyText]);
 
@@ -124,14 +123,14 @@ function App() {
 
       <Container>
         <Row>
-          <Col className="text-center">
+          <Col className={'text-center title'}>
             <h1> Feliz Cumpleaños <b>{config.name}</b></h1>
           </Col>
         </Row>
-        <Row>
+        <Row className={'resume'}>
           <Col>
-            <p>Oportunidades: {oportunities}</p>
-            <p>Regalo obtenido:{currencyFormatter.format(gift, { code: 'CLP', precision: 0, })}</p>
+            <p>Oportunidades:&nbsp;&nbsp;&nbsp;&nbsp;{oportunities}</p>
+            <p>Regalo obtenido:&nbsp;&nbsp;&nbsp;&nbsp;{currencyFormatter.format(gift, { code: 'CLP', precision: 0, })}</p>
           </Col>
         </Row>
         <Row>
@@ -149,19 +148,23 @@ function App() {
                       <div className={'front-card text-center d-flex justify-content-center align-content-center flex-wrap border'}>
 
                         {card.isGift &&
-                          <h2>
+                          <p className={'gift'}>
                             {currencyFormatter.format(card.value, { code: 'CLP', precision: 0, })}
-                          </h2>
+                          </p>
                         }
                         {!card.isGift &&
-                          <h2>
-                            <FontAwesomeIcon icon={card.value} />
-                          </h2>
+                          <div>
+                            <p className={'gift poop-color'}>
+                              <FontAwesomeIcon icon={card.value} />
+                            </p>
+                            <p className={'poop-color'}>Casi...</p>
+                          </div>
                         }
                       </div>
                       <div className={'back-card text-center d-flex justify-content-center align-content-center flex-wrap border'}>
                         {oportunities > 0 &&
                           < button onClick={() => flipCard(index, card.value, card.isGift)}>
+                            <FontAwesomeIcon icon={'birthday-cake'}></FontAwesomeIcon><br />
                           </button>
                         }
                       </div>
